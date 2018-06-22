@@ -1,22 +1,41 @@
 # NAME
 
-App::Greple::msdoc - It's new $module
+msdoc - Greple module for access MS office documents
+
+# VERSION
+
+Version 0.01
 
 # SYNOPSIS
 
-    use App::Greple::msdoc;
+greple -Mmsdoc
 
 # DESCRIPTION
 
-App::Greple::msdoc is ...
+This module makes it possible to search Microsoft docx/xlsx/pptx file.
+
+Microsoft document is consists of multiple files archived in zip
+format.  Document data is stored in "word/document.xml",
+"xl/worksheets/\*.xml" or "ppt/slides/\*.xml".  This module extracts the
+content of these files and replaces the search target data.
+
+# OPTIONS
+
+- **--indent**
+
+    Indent XML document before search.
+
+- **--text**
+
+    Remove XML markups and extract document text.
 
 # LICENSE
 
-Copyright (C) Kaz Utashiro.
+Copyright (C) Kazumasa Utashiro.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
 # AUTHOR
 
-Kaz Utashiro <kaz@utashiro.com>
+Kazumasa Utashiro

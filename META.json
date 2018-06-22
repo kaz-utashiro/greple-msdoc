@@ -1,7 +1,7 @@
 {
-   "abstract" : "It's new $module",
+   "abstract" : "Greple module for access MS office documents",
    "author" : [
-      "Kaz Utashiro <kaz@utashiro.com>"
+      "Kazumasa Utashiro"
    ],
    "dynamic_config" : 0,
    "generated_by" : "Minilla/v3.0.14, CPAN::Meta::Converter version 2.150010",
@@ -42,7 +42,8 @@
       },
       "runtime" : {
          "requires" : {
-            "perl" : "5.008001"
+            "List::Util" : "1.45",
+            "perl" : "v5.14.0"
          }
       },
       "test" : {
@@ -52,7 +53,21 @@
       }
    },
    "release_status" : "unstable",
+   "resources" : {
+      "bugtracker" : {
+         "web" : "https://github.com/kaz-utashiro/greple-msdoc/issues"
+      },
+      "homepage" : "https://github.com/kaz-utashiro/greple-msdoc",
+      "repository" : {
+         "type" : "git",
+         "url" : "git://github.com/kaz-utashiro/greple-msdoc.git",
+         "web" : "https://github.com/kaz-utashiro/greple-msdoc"
+      }
+   },
    "version" : "0.01",
    "x_authority" : "cpan:UTASHIRO",
+   "x_contributors" : [
+      "Kaz Utashiro <kaz@utashiro.com>"
+   ],
    "x_serialization_backend" : "JSON::PP version 2.27400_02"
 }
