@@ -4,7 +4,7 @@ msdoc - Greple module for access MS office documents
 
 =head1 VERSION
 
-Version 0.02
+Version 0.03
 
 =head1 SYNOPSIS
 
@@ -14,10 +14,10 @@ greple -Mmsdoc
 
 This module makes it possible to search Microsoft docx/xlsx/pptx file.
 
-Microsoft document is consists of multiple files archived in zip
-format.  Document data is stored in "word/document.xml",
-"xl/worksheets/*.xml" or "ppt/slides/*.xml".  This module extracts the
-content of these files and replaces the search target data.
+Microsoft document consists of multiple files archived in zip format.
+Document data is stored in "word/document.xml", "xl/worksheets/*.xml"
+or "ppt/slides/*.xml".  This module extracts the content of these
+files and replaces the search target data.
 
 =head1 OPTIONS
 
@@ -33,7 +33,7 @@ Remove XML markups and extract document text.
 
 =item B<--text-double>
 
-Insert double space between sentence in text format.
+Append double newlines after each sentence.
 
 =item B<--dump>
 
@@ -48,6 +48,10 @@ Copyright (C) Kazumasa Utashiro.
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
 
+=head1 SEE ALSO
+
+L<https://github.com/kaz-utashiro/greple-msdoc>
+
 =head1 AUTHOR
 
 Kazumasa Utashiro
@@ -56,17 +60,13 @@ Kazumasa Utashiro
 
 package App::Greple::msdoc;
 
-our $VERSION = '0.02';
+our $VERSION = '0.03';
 
 use strict;
 use warnings;
-
 use v5.14;
-
 use Carp;
-
 use utf8;
-use Encode;
 
 use Exporter 'import';
 our @EXPORT      = ();
@@ -74,16 +74,9 @@ our %EXPORT_TAGS = ();
 our @EXPORT_OK   = ();
 
 use App::Greple::Common;
-use List::Util qw( min max first sum );
 use Data::Dumper;
 
-our $document = "word/document.xml";
-my $separator = "\n";
-
-push @EXPORT, '&double_space';
-sub double_space {
-    $separator = "\n\n";
-}
+our $newline = 1;
 
 push @EXPORT, '&extract_text';
 sub extract_text {
@@ -97,7 +90,8 @@ sub extract_text {
 	s{</?(?:mc|wpg|wps|ma14|o):[^>]*>}{}g;
 	push @s, $_ if $_ ne "";
     }
-    $_ = join($separator, @s) . "\n" if @s;
+    my $separator = "\n" x $newline;
+    $_ = join $separator, @s, "" if @s;
 }
 
 push @EXPORT, '&indent_xml';
@@ -106,18 +100,12 @@ sub indent_xml {
     my $file = delete $arg{&FILELABEL} or die;
 
     my %nonewline = map { $_ => 1 } do {
-	if ($file =~ /\.docx$/) {
-	    qw(w:t w:delText w:instrText wp:posOffset);
-	}
-	elsif ($file =~ /\.pptx$/) {
-	    qw(a:t);
-	}
-	elsif ($file =~ /\.xlsx$/) {
-	    qw(v f formula1);
-	}
-	else {
-	    return;
-	}
+	map  { @{$_->[1]} }
+	grep { $file =~ $_->[0] } (
+	    [ qr/\.docx$/, [ qw(w:t w:delText w:instrText wp:posOffset) ] ],
+	    [ qr/\.pptx$/, [ qw(a:t) ] ],
+	    [ qr/\.xlsx$/, [ qw(v f formula1) ] ],
+	);
     };
 
     my $level = 0;
@@ -138,18 +126,15 @@ sub indent_xml {
 	  )
 	)
     }{
-	my $s = "";
 	if (not $+{single} and $nonewline{$+{tag}}) {
-	    $s = join("", $+{open} ? $indent_mark x $level : "",
-			  $+{mark},
-			  $+{close} ? "\n" : "");
+	    join("", $+{open} ? $indent_mark x $level : "",
+		 $+{mark},
+		 $+{close} ? "\n" : "");
 	}
 	else {
-	    $+{close} and --$level;
-	    $s = ($indent_mark x $level) . $+{mark} . "\n";
-	    $+{open}  and ++$level;
+	    $+{close} and $level--;
+	    ($indent_mark x ($+{open} ? $level++ : $level)) . $+{mark} . "\n";
 	}
-	$s;
     }gex;
 }
 
@@ -163,14 +148,15 @@ option default \
 	--if '/\.pptx$/:unzip -p /dev/stdin ppt/slides/*.xml'
 
 option --text --begin extract_text
+help   --text Extract text
 
-option --double --begin double_space
-
+expand --double --begin 'sub{$__PACKAGE__::newline=2}'
 option --text-double --double --text
+help   --text-double Extract text with double space
 
 define (#delText) <w:delText>.*?</w:delText>
 option --indent --begin indent_xml --exclude (#delText)
+help   --indent Indent XML data
 
-option --xls --begin xlsx_xml --exclude (#delText)
-
-option --dump -e '(?=never)__match' --need 0 --all
+option --dump --le &sub{} --need 0 --all
+help   --dump Print entire data
