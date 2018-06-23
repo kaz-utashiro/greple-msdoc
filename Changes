@@ -2,6 +2,10 @@ Revision history for Perl extension App-Greple-msdoc
 
 {{$NEXT}}
 
+0.02 2018-06-23T00:04:00Z
+
+    - Add --dump and --text-double options.
+
 0.01 2018-06-22T04:59:02Z
 
     - original version

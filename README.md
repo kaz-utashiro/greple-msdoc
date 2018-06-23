@@ -4,7 +4,7 @@ msdoc - Greple module for access MS office documents
 
 # VERSION
 
-Version 0.01
+Version 0.02
 
 # SYNOPSIS
 
@@ -28,6 +28,14 @@ content of these files and replaces the search target data.
 - **--text**
 
     Remove XML markups and extract document text.
+
+- **--text-double**
+
+    Insert double space between sentence in text format.
+
+- **--dump**
+
+    Simply print all converted data.
 
 # LICENSE
 

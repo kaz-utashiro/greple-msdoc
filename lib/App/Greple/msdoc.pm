@@ -4,7 +4,7 @@ msdoc - Greple module for access MS office documents
 
 =head1 VERSION
 
-Version 0.01
+Version 0.02
 
 =head1 SYNOPSIS
 
@@ -31,6 +31,14 @@ Indent XML document before search.
 
 Remove XML markups and extract document text.
 
+=item B<--text-double>
+
+Insert double space between sentence in text format.
+
+=item B<--dump>
+
+Simply print all converted data.
+
 =back
 
 =head1 LICENSE
@@ -48,7 +56,7 @@ Kazumasa Utashiro
 
 package App::Greple::msdoc;
 
-our $VERSION = '0.01';
+our $VERSION = '0.02';
 
 use strict;
 use warnings;
@@ -70,6 +78,12 @@ use List::Util qw( min max first sum );
 use Data::Dumper;
 
 our $document = "word/document.xml";
+my $separator = "\n";
+
+push @EXPORT, '&double_space';
+sub double_space {
+    $separator = "\n\n";
+}
 
 push @EXPORT, '&extract_text';
 sub extract_text {
@@ -81,9 +95,9 @@ sub extract_text {
 	s{<v:numPr>}{・}g;
 	s{</?(?:[apvw]|wp|pic)\d*:.*?>}{}g;
 	s{</?(?:mc|wpg|wps|ma14|o):[^>]*>}{}g;
-	push @s, $_;
+	push @s, $_ if $_ ne "";
     }
-    $_ = join "\n", @s, "\n" if @s;
+    $_ = join($separator, @s) . "\n" if @s;
 }
 
 push @EXPORT, '&indent_xml';
@@ -150,7 +164,13 @@ option default \
 
 option --text --begin extract_text
 
+option --double --begin double_space
+
+option --text-double --double --text
+
 define (#delText) <w:delText>.*?</w:delText>
 option --indent --begin indent_xml --exclude (#delText)
 
 option --xls --begin xlsx_xml --exclude (#delText)
+
+option --dump -e '(?=never)__match' --need 0 --all
