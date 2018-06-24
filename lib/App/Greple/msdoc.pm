@@ -1,10 +1,10 @@
 =head1 NAME
 
-msdoc - Greple module for access MS office documents
+msdoc - Greple module for access MS office docx/pptx/xlsx documents
 
 =head1 VERSION
 
-Version 0.03
+Version 0.04
 
 =head1 SYNOPSIS
 
@@ -12,12 +12,13 @@ greple -Mmsdoc
 
 =head1 DESCRIPTION
 
-This module makes it possible to search Microsoft docx/xlsx/pptx file.
+This module makes it possible to search string in Microsoft
+docx/pptx/xlsx file.
 
 Microsoft document consists of multiple files archived in zip format.
-Document data is stored in "word/document.xml", "xl/worksheets/*.xml"
-or "ppt/slides/*.xml".  This module extracts the content of these
-files and replaces the search target data.
+String information is stored in "word/document.xml",
+"ppt/slides/*.xml" or "xl/sharedStrings.xml".  This module extracts
+these data and replaces the search target.
 
 =head1 OPTIONS
 
@@ -27,13 +28,27 @@ files and replaces the search target data.
 
 Indent XML document before search.
 
+=item B<--indent-mark>=I<string>
+
+Set indentation string.  Default is C<| >.
+
 =item B<--text>
 
-Remove XML markups and extract document text.
+Extract text part from XML data.  This process is done by very simple
+method and may include redundant data.
 
-=item B<--text-double>
+After every paragraph, single newline is inserted for I<.pptx> and
+I<.xlsx> file, and double newlines for I<.docx> file.  Use
+B<--space> option to change this behavior.
 
-Append double newlines after each sentence.
+=item B<--space>=I<n>
+
+Specify number of newlines inserted after every paragraph.  Any
+non-negative integer is allowed including zero.
+
+=item B<-1>, B<-2>
+
+Shorthand for B<--space> I<1> and I<2>.
 
 =item B<--dump>
 
@@ -60,7 +75,7 @@ Kazumasa Utashiro
 
 package App::Greple::msdoc;
 
-our $VERSION = '0.03';
+our $VERSION = '0.04';
 
 use strict;
 use warnings;
@@ -76,22 +91,36 @@ our @EXPORT_OK   = ();
 use App::Greple::Common;
 use Data::Dumper;
 
-our $newline = 1;
+our $indent_mark = "| ";
+our $opt_space = undef;
+my $newline;
 
 push @EXPORT, '&extract_text';
 sub extract_text {
-    my @s;
-    for (m{<[apw]:p\b[^>]*>(.*?)</[apw]:p>}g) {
-	s{<[apw]:(delText)>.*?</[apw]:\1>}{}g;
-	s{<(wp:posOffset)>.*?</\1>}{}g;
-	s{<(w:drawing)>.*?</\1>}{}sg;
-	s{<v:numPr>}{・}g;
-	s{</?(?:[apvw]|wp|pic)\d*:.*?>}{}g;
-	s{</?(?:mc|wpg|wps|ma14|o):[^>]*>}{}g;
-	push @s, $_ if $_ ne "";
+    my %arg = @_;
+    my $file = delete $arg{&FILELABEL} or die;
+    $newline = "\n" x do {
+	if    (defined $opt_space) { $opt_space }
+	elsif ($file =~ /\.docx$/) { 2 }
+	else                       { 1 }
+    };
+
+    my @xml = grep { length } split /<\?xml\b[^>]*\?>\s*/;
+    my @text = map { extract_xml($_) } @xml;
+    $_ = join "\n", @text;
+}
+sub extract_xml {
+    local $_ = shift;
+    my @p;
+    while (m{<(?<tag>[apw]:p|si)\b[^>]*>(?<para>.*?)</\g{tag}>}sg) {
+	my $p = $+{para};
+	my @s;
+	while ($p =~ m{<(?<tag>(?:[apw]:)?t)\b[^>]*>(?<text>[^<]*?)</\g{tag}>}sg) {
+	    push @s, $+{text} if $+{text} ne '';
+	}
+	push @p, join('', @s, $newline) if @s;
     }
-    my $separator = "\n" x $newline;
-    $_ = join $separator, @s, "" if @s;
+    join '', @p;
 }
 
 push @EXPORT, '&indent_xml';
@@ -99,17 +128,17 @@ sub indent_xml {
     my %arg = @_;
     my $file = delete $arg{&FILELABEL} or die;
 
-    my %nonewline = map { $_ => 1 } do {
+    my %nonewline = do {
+	map  { $_ => 1 }
 	map  { @{$_->[1]} }
 	grep { $file =~ $_->[0] } (
 	    [ qr/\.docx$/, [ qw(w:t w:delText w:instrText wp:posOffset) ] ],
 	    [ qr/\.pptx$/, [ qw(a:t) ] ],
-	    [ qr/\.xlsx$/, [ qw(v f formula1) ] ],
+	    [ qr/\.xlsx$/, [ qw(t v f formula1) ] ],
 	);
     };
 
     my $level = 0;
-    my $indent_mark = "| ";
 
     s{
 	(?<mark>
@@ -144,15 +173,17 @@ __DATA__
 
 option default \
 	--if '/\.docx$/:unzip -p /dev/stdin word/document.xml' \
-	--if '/\.xlsx$/:unzip -p /dev/stdin xl/worksheets/*.xml' \
+	--if '/\.xlsx$/:unzip -p /dev/stdin xl/sharedStrings.xml' \
 	--if '/\.pptx$/:unzip -p /dev/stdin ppt/slides/*.xml'
+
+builtin space=i $opt_space
+builtin indent-mark=s $indent_mark
 
 option --text --begin extract_text
 help   --text Extract text
 
-expand --double --begin 'sub{$__PACKAGE__::newline=2}'
-option --text-double --double --text
-help   --text-double Extract text with double space
+option -1 --space 1
+option -2 --space 2
 
 define (#delText) <w:delText>.*?</w:delText>
 option --indent --begin indent_xml --exclude (#delText)
@@ -160,3 +191,5 @@ help   --indent Indent XML data
 
 option --dump --le &sub{} --need 0 --all
 help   --dump Print entire data
+
+#  LocalWords:  msdoc Greple greple Mmsdoc docx ppt xml pptx xlsx xl

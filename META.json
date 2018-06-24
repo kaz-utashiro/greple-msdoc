@@ -1,5 +1,5 @@
 {
-   "abstract" : "Greple module for access MS office documents",
+   "abstract" : "Greple module for access MS office docx/pptx/xlsx documents",
    "author" : [
       "Kazumasa Utashiro"
    ],
@@ -64,7 +64,7 @@
          "web" : "https://github.com/kaz-utashiro/greple-msdoc"
       }
    },
-   "version" : "0.03",
+   "version" : "0.04",
    "x_authority" : "cpan:UTASHIRO",
    "x_contributors" : [
       "Kaz Utashiro <kaz@utashiro.com>"

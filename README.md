@@ -1,10 +1,10 @@
 # NAME
 
-msdoc - Greple module for access MS office documents
+msdoc - Greple module for access MS office docx/pptx/xlsx documents
 
 # VERSION
 
-Version 0.03
+Version 0.04
 
 # SYNOPSIS
 
@@ -12,12 +12,13 @@ greple -Mmsdoc
 
 # DESCRIPTION
 
-This module makes it possible to search Microsoft docx/xlsx/pptx file.
+This module makes it possible to search string in Microsoft
+docx/pptx/xlsx file.
 
 Microsoft document consists of multiple files archived in zip format.
-Document data is stored in "word/document.xml", "xl/worksheets/\*.xml"
-or "ppt/slides/\*.xml".  This module extracts the content of these
-files and replaces the search target data.
+String information is stored in "word/document.xml",
+"ppt/slides/\*.xml" or "xl/sharedStrings.xml".  This module extracts
+these data and replaces the search target.
 
 # OPTIONS
 
@@ -25,13 +26,27 @@ files and replaces the search target data.
 
     Indent XML document before search.
 
+- **--indent-mark**=_string_
+
+    Set indentation string.  Default is `| `.
+
 - **--text**
 
-    Remove XML markups and extract document text.
+    Extract text part from XML data.  This process is done by very simple
+    method and may include redundant data.
 
-- **--text-double**
+    After every paragraph, single newline is inserted for _.pptx_ and
+    _.xlsx_ file, and double newlines for _.docx_ file.  Use
+    **--space** option to change this behavior.
 
-    Append double newlines after each sentence.
+- **--space**=_n_
+
+    Specify number of newlines inserted after every paragraph.  Any
+    non-negative integer is allowed including zero.
+
+- **-1**, **-2**
+
+    Shorthand for **--space** _1_ and _2_.
 
 - **--dump**
 

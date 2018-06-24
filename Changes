@@ -2,6 +2,14 @@ Revision history for Perl extension App-Greple-msdoc
 
 {{$NEXT}}
 
+0.04 2018-06-24T04:58:02Z
+
+    - Totally update text extract strategy.
+    - Use xl/sharedStrings.xml for .xlsx file.
+    - Introduce --space built-in option.
+    - Delete --text-double option.
+    - Use single newline for pptx/xlsx, and double for docx.
+
 0.03 2018-06-23T15:22:23Z
 
     - Remove unnecessary staff.
