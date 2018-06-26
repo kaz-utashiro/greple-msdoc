@@ -4,7 +4,7 @@ msdoc - Greple module for access MS office docx/pptx/xlsx documents
 
 # VERSION
 
-Version 0.04
+Version 1.00
 
 # SYNOPSIS
 
@@ -20,37 +20,34 @@ String information is stored in "word/document.xml",
 "ppt/slides/\*.xml" or "xl/sharedStrings.xml".  This module extracts
 these data and replaces the search target.
 
+By default, text part from XML data is extracted.  This process is
+done by very simple method and may include redundant information.
+
+After every paragraph, single newline is inserted for _.pptx_ and
+_.xlsx_ file, and double newlines for _.docx_ file.  Use
+**--space** option to change this behavior.
+
 # OPTIONS
 
-- **--indent**
+- **--dump**
 
-    Indent XML document before search.
+    Simply print all converted data.  Additional pattern can be specified,
+    and they will be highlighted inside whole text.
 
-- **--indent-mark**=_string_
-
-    Set indentation string.  Default is `| `.
-
-- **--text**
-
-    Extract text part from XML data.  This process is done by very simple
-    method and may include redundant data.
-
-    After every paragraph, single newline is inserted for _.pptx_ and
-    _.xlsx_ file, and double newlines for _.docx_ file.  Use
-    **--space** option to change this behavior.
+        $ greple -Mmsdoc --dump -e foo -e bar buz.docx
 
 - **--space**=_n_
 
     Specify number of newlines inserted after every paragraph.  Any
     non-negative integer is allowed including zero.
 
-- **-1**, **-2**
+- **--indent**
 
-    Shorthand for **--space** _1_ and _2_.
+    Extract indented XML document, not a plain text.
 
-- **--dump**
+- **--indent-mark**=_string_
 
-    Simply print all converted data.
+    Set indentation string.  Default is `| `.
 
 # LICENSE
 

@@ -42,7 +42,7 @@
       },
       "runtime" : {
          "requires" : {
-            "App::Greple" : "0",
+            "App::Greple" : "8.26",
             "perl" : "v5.14.0"
          }
       },
@@ -64,7 +64,7 @@
          "web" : "https://github.com/kaz-utashiro/greple-msdoc"
       }
    },
-   "version" : "0.04",
+   "version" : "1.00",
    "x_authority" : "cpan:UTASHIRO",
    "x_contributors" : [
       "Kaz Utashiro <kaz@utashiro.com>"

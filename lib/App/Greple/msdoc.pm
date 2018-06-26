@@ -4,7 +4,7 @@ msdoc - Greple module for access MS office docx/pptx/xlsx documents
 
 =head1 VERSION
 
-Version 0.04
+Version 1.00
 
 =head1 SYNOPSIS
 
@@ -20,39 +20,36 @@ String information is stored in "word/document.xml",
 "ppt/slides/*.xml" or "xl/sharedStrings.xml".  This module extracts
 these data and replaces the search target.
 
-=head1 OPTIONS
-
-=over 7
-
-=item B<--indent>
-
-Indent XML document before search.
-
-=item B<--indent-mark>=I<string>
-
-Set indentation string.  Default is C<| >.
-
-=item B<--text>
-
-Extract text part from XML data.  This process is done by very simple
-method and may include redundant data.
+By default, text part from XML data is extracted.  This process is
+done by very simple method and may include redundant information.
 
 After every paragraph, single newline is inserted for I<.pptx> and
 I<.xlsx> file, and double newlines for I<.docx> file.  Use
 B<--space> option to change this behavior.
+
+=head1 OPTIONS
+
+=over 7
+
+=item B<--dump>
+
+Simply print all converted data.  Additional pattern can be specified,
+and they will be highlighted inside whole text.
+
+    $ greple -Mmsdoc --dump -e foo -e bar buz.docx
 
 =item B<--space>=I<n>
 
 Specify number of newlines inserted after every paragraph.  Any
 non-negative integer is allowed including zero.
 
-=item B<-1>, B<-2>
+=item B<--indent>
 
-Shorthand for B<--space> I<1> and I<2>.
+Extract indented XML document, not a plain text.
 
-=item B<--dump>
+=item B<--indent-mark>=I<string>
 
-Simply print all converted data.
+Set indentation string.  Default is C<| >.
 
 =back
 
@@ -75,7 +72,7 @@ Kazumasa Utashiro
 
 package App::Greple::msdoc;
 
-our $VERSION = '0.04';
+our $VERSION = '1.00';
 
 use strict;
 use warnings;
@@ -94,10 +91,11 @@ use Data::Dumper;
 our $indent_mark = "| ";
 our $opt_space = undef;
 our $opt_type;
+our $default_format = 'text';
 
 my $eop;	# end of paragraph
 
-push @EXPORT, '&extract_text';
+# push @EXPORT, '&extract_text';
 sub extract_text {
     my %arg = @_;
     my $file = delete $arg{&FILELABEL} or die;
@@ -106,7 +104,7 @@ sub extract_text {
 
     $eop = "\n" x do {
 	if    (defined $opt_space) { $opt_space }
-	elsif ($type =~ /docx$/)   { 2 }
+	elsif ($type =~ /^docx$/)  { 2 }
 	else                       { 1 }
     };
 
@@ -114,10 +112,10 @@ sub extract_text {
     return unless /$xml_re/;
 
     my @xml = grep { length } split /$xml_re/;
-    my @text = map { extract_xml($_) } @xml;
+    my @text = map { _xml2text($_) } @xml;
     $_ = join "\n", @text;
 }
-sub extract_xml {
+sub _xml2text {
     local $_ = shift;
     my @p;
     while (m{<(?<tag>[apw]:p|si)\b[^>]*>(?<para>.*?)</\g{tag}>}sg) {
@@ -131,7 +129,12 @@ sub extract_xml {
     join '', @p;
 }
 
-push @EXPORT, '&indent_xml';
+# push @EXPORT, '&separate_xml';
+sub separate_xml {
+    s{ (?<=>) ([^<]*) }{ $1 ? "\n$1\n" : "\n" }gex;
+}
+
+# push @EXPORT, '&indent_xml';
 sub indent_xml {
     my %arg = @_;
     my $file = delete $arg{&FILELABEL} or die;
@@ -175,30 +178,64 @@ sub indent_xml {
     }gex;
 }
 
+sub extract {
+    my %arg = @_;
+    my $pid = open(STDIN, '-|') // croak "process fork failed: $!";
+    binmode STDIN, ':encoding(utf8)';
+    if ($pid == 0) {
+	local $_ = do { local $/; <STDIN> };
+	my $format = $arg{format} // $default_format;
+	my $sub = do {
+	    if    ($format eq 'text')         { \&extract_text }
+	    elsif ($format eq 'indent-xml')   { \&indent_xml   }
+	    elsif ($format eq 'separate-xml') { \&separate_xml }
+	    else  { undef }
+	};
+	my @arg = $arg{&FILELABEL} ? (&FILELABEL => $arg{&FILELABEL}) : ();
+	$sub->(@arg) if $sub;
+	print $_;
+	exit;
+    }
+    $pid;
+}
+
 1;
 
 __DATA__
 
+help	default		ignore
+help	--space		Number of newlines after paragraph
+help	--indent	Indent XML data
+help	--indent-mark	Specify text for indentation
+help	--type		Specify document type (docx, pptx, xlsx)
+help	--dump		Print entire data
+help	--msdoc-format	ignore
+
+# --text option is deprecated, and to be removed
+option	--text		$<move(0,0)>
+help	--text		ignore
+
 option default \
 	--if '/\.docx$/:unzip -p /dev/stdin word/document.xml' \
+	--if '/\.pptx$/:unzip -p /dev/stdin ppt/slides/*.xml' \
 	--if '/\.xlsx$/:unzip -p /dev/stdin xl/sharedStrings.xml' \
-	--if '/\.pptx$/:unzip -p /dev/stdin ppt/slides/*.xml'
+	--if '/\.(docx|pptx|xlsx)$/:&__PACKAGE__::extract'
 
 builtin space=i $opt_space
-builtin indent-mark=s $indent_mark
 builtin type=s $opt_type
-
-option --text --begin extract_text
-help   --text Extract text
-
-option -1 --space 1
-option -2 --space 2
+builtin msdoc-format=s $default_format
 
 define (#delText) <w:delText>.*?</w:delText>
-option --indent --begin indent_xml --exclude (#delText)
-help   --indent Indent XML data
 
+##
+## --indent, --indent-mark
+##
+option --indent --msdoc-format=indent-xml
+builtin indent-mark=s $indent_mark
+
+##
+## --dump
+##
 option --dump --le &sub{} --need 0 --all
-help   --dump Print entire data
 
 #  LocalWords:  msdoc Greple greple Mmsdoc docx ppt xml pptx xlsx xl

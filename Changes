@@ -2,6 +2,12 @@ Revision history for Perl extension App-Greple-msdoc
 
 {{$NEXT}}
 
+1.00 2018-06-26T07:50:02Z
+
+    - Implement everything in filter function.
+    - Extract text by default and deprecate --text option.
+    - Only works with latest greple and Getopt::EX.
+
 0.04 2018-06-24T04:58:02Z
 
     - Totally update text extract strategy.
