@@ -93,19 +93,27 @@ use Data::Dumper;
 
 our $indent_mark = "| ";
 our $opt_space = undef;
-my $newline;
+our $opt_type;
+
+my $eop;	# end of paragraph
 
 push @EXPORT, '&extract_text';
 sub extract_text {
     my %arg = @_;
     my $file = delete $arg{&FILELABEL} or die;
-    $newline = "\n" x do {
+    my($suffix) = $file =~ /\.(\w+)$/;
+    my $type = $opt_type || $suffix;
+
+    $eop = "\n" x do {
 	if    (defined $opt_space) { $opt_space }
-	elsif ($file =~ /\.docx$/) { 2 }
+	elsif ($type =~ /docx$/)   { 2 }
 	else                       { 1 }
     };
 
-    my @xml = grep { length } split /<\?xml\b[^>]*\?>\s*/;
+    my $xml_re = qr/<\?xml\b[^>]*\?>\s*/;
+    return unless /$xml_re/;
+
+    my @xml = grep { length } split /$xml_re/;
     my @text = map { extract_xml($_) } @xml;
     $_ = join "\n", @text;
 }
@@ -118,7 +126,7 @@ sub extract_xml {
 	while ($p =~ m{<(?<tag>(?:[apw]:)?t)\b[^>]*>(?<text>[^<]*?)</\g{tag}>}sg) {
 	    push @s, $+{text} if $+{text} ne '';
 	}
-	push @p, join('', @s, $newline) if @s;
+	push @p, join('', @s, $eop) if @s;
     }
     join '', @p;
 }
@@ -178,6 +186,7 @@ option default \
 
 builtin space=i $opt_space
 builtin indent-mark=s $indent_mark
+builtin type=s $opt_type
 
 option --text --begin extract_text
 help   --text Extract text
