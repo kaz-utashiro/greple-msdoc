@@ -199,6 +199,30 @@ sub extract {
     $pid;
 }
 
+##
+## This is better implementation using in-memory file.
+## Works fine for first file, but does not work for the rest.
+## Hope to be solved.
+##
+sub __extract {
+    my %arg = @_;
+    my $stdin = do { local $/; <STDIN> };
+    my $format = $arg{format} // $default_format;
+    my $sub = do {
+	if    ($format eq 'text')         { \&extract_text }
+	elsif ($format eq 'indent-xml')   { \&indent_xml   }
+	elsif ($format eq 'separate-xml') { \&separate_xml }
+	else  { undef }
+    };
+    if ($sub) {
+	my @arg = $arg{&FILELABEL} ? (&FILELABEL => $arg{&FILELABEL}) : ();
+	for ($stdin) { $sub->(@arg) }
+    }
+
+    close STDIN;
+    open STDIN, "<", \$stdin || die "open: $!";
+}
+
 1;
 
 __DATA__
