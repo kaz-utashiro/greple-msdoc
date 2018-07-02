@@ -4,7 +4,7 @@ msdoc - Greple module for access MS office docx/pptx/xlsx documents
 
 =head1 VERSION
 
-Version 1.00
+Version 1.01
 
 =head1 SYNOPSIS
 
@@ -53,6 +53,10 @@ Set indentation string.  Default is C<| >.
 
 =back
 
+=head1 INSTALL
+
+cpanm App::Greple::msdoc
+
 =head1 LICENSE
 
 Copyright (C) Kazumasa Utashiro.
@@ -72,7 +76,7 @@ Kazumasa Utashiro
 
 package App::Greple::msdoc;
 
-our $VERSION = '1.00';
+our $VERSION = '1.01';
 
 use strict;
 use warnings;

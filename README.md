@@ -4,7 +4,7 @@ msdoc - Greple module for access MS office docx/pptx/xlsx documents
 
 # VERSION
 
-Version 1.00
+Version 1.01
 
 # SYNOPSIS
 
@@ -48,6 +48,10 @@ _.xlsx_ file, and double newlines for _.docx_ file.  Use
 - **--indent-mark**=_string_
 
     Set indentation string.  Default is `| `.
+
+# INSTALL
+
+cpanm App::Greple::msdoc
 
 # LICENSE
 

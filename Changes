@@ -2,6 +2,11 @@ Revision history for Perl extension App-Greple-msdoc
 
 {{$NEXT}}
 
+1.01 2018-07-02T07:22:33Z
+
+    - Trial buggy implementation using in-memory file.
+    - Add --epilogue code for --dump to exit successfully.
+
 1.00 2018-06-26T07:50:02Z
 
     - Implement everything in filter function.
