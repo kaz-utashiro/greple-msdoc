@@ -268,9 +268,6 @@ builtin indent-mark=s $indent_mark
 ##
 ## --dump
 ##
-option --dump \
-	-Mcolors --cm x --bright --face +D \
-	--le &sub{} --need 0 --all \
-	--epilogue 'sub{exit(0)}'
+option --dump --le &sub{} --need 0 --all --epilogue 'sub{exit(0)}'
 
 #  LocalWords:  msdoc Greple greple Mmsdoc docx ppt xml pptx xlsx xl
