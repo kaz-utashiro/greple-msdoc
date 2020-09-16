@@ -91,6 +91,7 @@ use warnings;
 use v5.14;
 use Carp;
 use utf8;
+use Encode;
 
 use Exporter 'import';
 our @EXPORT      = ();
@@ -229,6 +230,24 @@ sub __extract {
     open STDIN, "<", \$stdin || die "open: $!";
 }
 
+sub extract_pptx {
+    my %arg = @_;
+    my $file = delete $arg{&FILELABEL} or die;
+    my $pid = open(STDIN, '-|') // croak "process fork failed: $!";
+    binmode STDIN, ':encoding(utf8)';
+    if ($pid == 0) {
+	my @slides = do {
+	    map  { $_->[0] }
+	    sort { $a->[1] <=> $b->[1] }
+	    map  { m{(ppt/slides/slide(\d+)\.xml)} ? [ $1, $2 ] : () }
+	    `unzip -l \"$file\" ppt/slides/slide*.xml`;
+	};
+	print decode 'utf8', join '', map { `unzip -p \"$file\" $_` } @slides;
+	exit;
+    }
+    $pid;
+}
+
 1;
 
 __DATA__
@@ -248,7 +267,7 @@ help	--text		ignore
 
 option default \
 	--if '/\.docx$/:unzip -p /dev/stdin word/document.xml' \
-	--if '/\.pptx$/:unzip -p /dev/stdin ppt/slides/*.xml' \
+	--if '/\.pptx$/:&__PACKAGE__::extract_pptx' \
 	--if '/\.xlsx$/:unzip -p /dev/stdin xl/sharedStrings.xml' \
 	--if '/\.(docx|pptx|xlsx)$/:&__PACKAGE__::extract'
 
