@@ -43,6 +43,7 @@
       "runtime" : {
          "requires" : {
             "App::Greple" : "8.26",
+            "App::optex::textconv" : "0",
             "perl" : "v5.14.0"
          }
       },
