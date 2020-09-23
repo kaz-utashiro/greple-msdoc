@@ -4,7 +4,7 @@ msdoc - Greple module for access MS office docx/pptx/xlsx documents
 
 # VERSION
 
-Version 1.03
+Version 1.04
 
 # SYNOPSIS
 
@@ -64,6 +64,8 @@ cpanm App::Greple::msdoc
 # SEE ALSO
 
 [https://github.com/kaz-utashiro/greple-msdoc](https://github.com/kaz-utashiro/greple-msdoc)
+
+[https://github.com/kaz-utashiro/optex-textconv](https://github.com/kaz-utashiro/optex-textconv)
 
 # AUTHOR
 

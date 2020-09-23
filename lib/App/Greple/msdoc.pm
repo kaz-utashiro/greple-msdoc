@@ -4,7 +4,7 @@ msdoc - Greple module for access MS office docx/pptx/xlsx documents
 
 =head1 VERSION
 
-Version 1.03
+Version 1.04
 
 =head1 SYNOPSIS
 
@@ -69,6 +69,8 @@ cpanm App::Greple::msdoc
 
 L<https://github.com/kaz-utashiro/greple-msdoc>
 
+L<https://github.com/kaz-utashiro/optex-textconv>
+
 =head1 AUTHOR
 
 Kazumasa Utashiro
@@ -84,7 +86,7 @@ it under the same terms as Perl itself.
 
 package App::Greple::msdoc;
 
-our $VERSION = '1.03';
+our $VERSION = '1.04';
 
 use strict;
 use warnings;
@@ -154,9 +156,10 @@ sub indent_xml {
     }gex;
 }
 
-use App::optex::textconv::Zip;
+use Archive::Zip;
 use App::optex::textconv::msdoc;
-*to_text = \&App::optex::textconv::msdoc::to_text;
+*to_text  = \&App::optex::textconv::msdoc::to_text;
+*get_list = \&App::optex::textconv::msdoc::get_list;
 
 my %formatter = (
     'indent-xml'   => \&indent_xml,
@@ -166,6 +169,7 @@ my %formatter = (
 sub extract_content {
     my %arg = @_;
     my $file = $arg{&FILELABEL} or die;
+    my $type = ($file =~ /\.(docx|xlsx|pptx)$/)[0] or die;
     my $pid = open(STDIN, '-|') // croak "process fork failed: $!";
     binmode STDIN, ':encoding(utf8)';
     if ($pid) {
@@ -176,8 +180,14 @@ sub extract_content {
 	print decode 'utf8', to_text($file);
 	exit;
     } elsif ($format =~ /xml$/) {
-	my $zip = App::optex::textconv::Zip->new($file);
-	my $xml = decode 'utf8', join "\n", map { $zip->extract($_) } $zip->list;
+	my $zip = Archive::Zip->new($file);
+	my @xml;
+	for my $entry (get_list($zip, $type)) {
+	    my $member = $zip->memberNamed($entry) or next;
+	    my $xml = $member->contents or next;
+	    push @xml, $xml;
+	}
+	my $xml = decode 'utf8', join "\n", @xml;
 	if (my $sub = $formatter{$format}) {
 	    $sub->(&FILELABEL => $file) for $xml;
 	}
