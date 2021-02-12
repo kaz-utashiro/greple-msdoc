@@ -77,7 +77,7 @@ Kazumasa Utashiro
 
 =head1 LICENSE
 
-Copyright 2018-2020 Kazumasa Utashiro.
+Copyright 2018-2021 Kazumasa Utashiro.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
@@ -121,9 +121,9 @@ sub indent_xml {
 	map  { $_ => 1 }
 	map  { @{$_->[1]} }
 	grep { $file =~ $_->[0] } (
-	    [ qr/\.docx$/, [ qw(w:t w:delText w:instrText wp:posOffset) ] ],
-	    [ qr/\.pptx$/, [ qw(a:t) ] ],
-	    [ qr/\.xlsx$/, [ qw(t v f formula1) ] ],
+	    [ qr/\.doc[xm]$/, [ qw(w:t w:delText w:instrText wp:posOffset) ] ],
+	    [ qr/\.ppt[xm]$/, [ qw(a:t) ] ],
+	    [ qr/\.xls[xm]$/, [ qw(t v f formula1) ] ],
 	);
     };
 
@@ -169,7 +169,7 @@ my %formatter = (
 sub extract_content {
     my %arg = @_;
     my $file = $arg{&FILELABEL} or die;
-    my $type = ($file =~ /\.(docx|xlsx|pptx)$/)[0] or die;
+    my $type = ($file =~ /\.((?:doc|xls|ppt)[xm])$/)[0] or die;
     my $pid = open(STDIN, '-|') // croak "process fork failed: $!";
     binmode STDIN, ':encoding(utf8)';
     if ($pid) {
@@ -215,7 +215,7 @@ option	--text		$<move(0,0)>
 help	--text		ignore
 
 option default \
-	--if '/\.(docx|pptx|xlsx)$/:&__PACKAGE__::extract_content'
+	--if '/\.(doc|ppt|xls)[xm]$/:&__PACKAGE__::extract_content'
 
 builtin space=i $opt_space
 builtin separator=s $opt_separator

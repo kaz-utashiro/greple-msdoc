@@ -73,7 +73,7 @@ Kazumasa Utashiro
 
 # LICENSE
 
-Copyright 2018-2020 Kazumasa Utashiro.
+Copyright 2018-2021 Kazumasa Utashiro.
 
 This library is free software; you can redistribute it and/or modify
 it under the same terms as Perl itself.
