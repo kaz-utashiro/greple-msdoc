@@ -6,7 +6,7 @@ use utf8;
 use Test::More;
 use Data::Dumper;
 
-use lib 't/lib';
+use lib 't';
 use Util;
 
 is(greple(qw(-Mmsdoc --dump /dev/null))->run->{result}, 0, "--dump exit 0");
