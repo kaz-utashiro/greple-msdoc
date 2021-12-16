@@ -5,7 +5,7 @@ msdoc - Greple module for access MS office docx/pptx/xlsx documents
 
 # VERSION
 
-Version 1.04
+Version 1.05
 
 # SYNOPSIS
 
