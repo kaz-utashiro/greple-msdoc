@@ -8,7 +8,7 @@ Version 1.04
 
 # SYNOPSIS
 
-greple -Mmsdoc
+greple -Mmsdoc pattern example.docx
 
 # DESCRIPTION
 
