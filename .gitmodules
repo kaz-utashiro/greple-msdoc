@@ -1,0 +1,3 @@
+[submodule "t/lib"]
+	path = t/lib
+	url = git@github.com:kaz-utashiro/greple-runner.git
