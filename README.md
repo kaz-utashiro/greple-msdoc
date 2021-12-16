@@ -1,3 +1,4 @@
+[![Actions Status](https://github.com/kaz-utashiro/greple-msdoc/workflows/test/badge.svg)](https://github.com/kaz-utashiro/greple-msdoc/actions) [![MetaCPAN Release](https://badge.fury.io/pl/App-Greple-msdoc.svg)](https://metacpan.org/release/App-Greple-msdoc)
 # NAME
 
 msdoc - Greple module for access MS office docx/pptx/xlsx documents
