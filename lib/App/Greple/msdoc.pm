@@ -157,9 +157,7 @@ sub indent_xml {
 }
 
 use Archive::Zip;
-use App::optex::textconv::msdoc;
-*to_text  = \&App::optex::textconv::msdoc::to_text;
-*get_list = \&App::optex::textconv::msdoc::get_list;
+use App::optex::textconv::msdoc qw(to_text get_list);
 
 my %formatter = (
     'indent-xml'   => \&indent_xml,
