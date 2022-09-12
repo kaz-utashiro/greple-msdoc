@@ -208,10 +208,6 @@ help	--type		Specify document type (docx, pptx, xlsx)
 help	--dump		Print entire data
 help	--msdoc-format	ignore
 
-# --text option is deprecated, and to be removed
-option	--text		$<move(0,0)>
-help	--text		ignore
-
 option default \
 	--if '/\.(doc|ppt|xls)[xm]$/:&__PACKAGE__::extract_content'
 
