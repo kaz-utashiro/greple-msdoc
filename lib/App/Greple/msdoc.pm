@@ -63,12 +63,19 @@ Set indentation string.  Default is C<| >.
 
 =head1 INSTALL
 
+=head2 CPANMINUS
+
 cpanm App::Greple::msdoc
 
 =head1 SEE ALSO
 
+L<App::Greple>,
+L<https://github.com/kaz-utashiro/greple>
+
+L<App::Greple::msdoc>,
 L<https://github.com/kaz-utashiro/greple-msdoc>
 
+L<App::optex::textconv>,
 L<https://github.com/kaz-utashiro/optex-textconv>
 
 =head1 AUTHOR
