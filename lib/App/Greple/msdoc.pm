@@ -107,7 +107,7 @@ our @EXPORT      = ();
 our %EXPORT_TAGS = ();
 our @EXPORT_OK   = ();
 
-use App::Greple::Common;
+use App::Greple::Common qw(&FILELABEL);
 use Data::Dumper;
 
 our $indent_mark = "| ";
