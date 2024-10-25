@@ -55,6 +55,11 @@ Specify the separator string placed between each component strings.
 
 Extract indented XML document, not a plain text.
 
+=item B<--indent-fold>
+
+Indent and fold long lines.
+This option requires L<ansicolumn(1)> command installed.
+
 =item B<--indent-mark>=I<string>
 
 Set indentation string.  Default is C<| >.
@@ -77,6 +82,8 @@ L<https://github.com/kaz-utashiro/greple-msdoc>
 
 L<App::optex::textconv>,
 L<https://github.com/kaz-utashiro/optex-textconv>
+
+L<App::ansicolumn>,
 
 L<https://qiita.com/kaz-utashiro/items/30594c16ed6d931324f9>
 (in Japanese)
@@ -238,5 +245,9 @@ builtin indent-mark=s $indent_mark
 ## --dump
 ##
 option --dump --le &sub{} --need 0 --all --exit=0
+
+option --indent-fold \
+    --indent \
+    --of "ansifold --autoindent '(.*<w:t>|([|][ ])*)' -s -w=2-"
 
 #  LocalWords:  msdoc Greple greple Mmsdoc docx ppt xml pptx xlsx xl
