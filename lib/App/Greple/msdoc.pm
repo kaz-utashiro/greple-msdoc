@@ -4,7 +4,7 @@ msdoc - Greple module for access MS office docx/pptx/xlsx documents
 
 =head1 VERSION
 
-Version 1.06
+Version 1.07
 
 =head1 SYNOPSIS
 
@@ -103,7 +103,7 @@ it under the same terms as Perl itself.
 
 package App::Greple::msdoc;
 
-our $VERSION = '1.06';
+our $VERSION = '1.07';
 
 use strict;
 use warnings;
