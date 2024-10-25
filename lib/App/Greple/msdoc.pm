@@ -78,6 +78,9 @@ L<https://github.com/kaz-utashiro/greple-msdoc>
 L<App::optex::textconv>,
 L<https://github.com/kaz-utashiro/optex-textconv>
 
+L<https://qiita.com/kaz-utashiro/items/30594c16ed6d931324f9>
+(in Japanese)
+
 =head1 AUTHOR
 
 Kazumasa Utashiro
